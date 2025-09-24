@@ -9,7 +9,7 @@ public class DatabaseConfig {
 
     static {
         try (InputStream input = DatabaseConfig.class.getClassLoader()
-                .getResourceAsStream("database.properties")) {
+                .getResourceAsStream("db/database.properties")) {
             if (input == null) {
                 throw new RuntimeException("Unable to find database.properties");
             }

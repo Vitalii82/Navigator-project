@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.navigator.db.dao.GraphDao">
+
+    <resultMap id="NodeResult" type="com.navigator.model.Node">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="x" column="x"/>
+        <result property="y" column="y"/>
+    </resultMap>
+
+    <resultMap id="EdgeResult" type="com.navigator.model.Edge">
+        <result property="fromId" column="from_id"/>
+        <result property="toId" column="to_id"/>
+        <result property="weight" column="weight"/>
+    </resultMap>
+
+
+    <select id="getAllNodes" resultMap="NodeResult">
+        SELECT id, name, x, y FROM nodes
+    </select>
+
+
+    <select id="getAllEdges" resultMap="EdgeResult">
+        SELECT from_id, to_id, weight FROM edges
+    </select>
+
+
+    <select id="getNodeByName" resultMap="NodeResult" parameterType="String">
+        SELECT id, name, x, y
+        FROM nodes
+        WHERE name = #{name}
+    </select>
+
+
+    <select id="getEdgeByFromTo" resultMap="EdgeResult">
+        SELECT from_id, to_id, weight
+        FROM edges
+        WHERE from_id = #{fromId} AND to_id = #{toId}
+    </select>
+
+</mapper>

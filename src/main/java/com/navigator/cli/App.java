@@ -7,7 +7,7 @@ public class App {
     public static void main(String[] args) {
         System.out.println("Navigator project (Floyd–Warshall). Type 'exit' to quit.");
         try (NavigatorService service = new NavigatorService();
-                Scanner sc = new Scanner(System.in)) {
+             Scanner sc = new Scanner(System.in)) {
             while (true) {
                 System.out.print("Enter START and END (e.g., A C): ");
                 String line = sc.nextLine().trim();
