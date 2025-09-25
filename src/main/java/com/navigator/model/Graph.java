@@ -26,4 +26,13 @@ public class Graph {
         if (idx == null) return null;
         return nodes.get(idx);
     }
+
+    public List<Node> getNodes() {
+        return nodes;
+    }
+
+    public List<Edge> getEdges() {
+        return edges;
+    }
+
 }

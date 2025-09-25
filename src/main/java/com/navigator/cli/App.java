@@ -1,6 +1,8 @@
 package com.navigator.cli;
 
-import com.navigator.service.NavigatorService;
+import com.navigator.db.exceptions.ServiceException;
+import com.navigator.service.factory.ServiceFactory;
+import com.navigator.service.intarfaces.IGraphService;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -25,7 +27,7 @@ Examples:
         return s.trim().toUpperCase(Locale.ROOT);
     }
 
-    private static void handleRoute(NavigatorService service, String sRaw, String eRaw) {
+    private static void handleRoute(IGraphService service, String sRaw, String eRaw) throws ServiceException {
         String start = norm(sRaw);
         String end = norm(eRaw);
         if (start.isEmpty() || end.isEmpty()) {
@@ -43,59 +45,45 @@ Examples:
         System.out.println("Path: " + String.join(" -> ", result.path));
     }
 
-    public static void main(String[] args) {
-        // Args mode: mvn -q -DskipTests exec:java -Dexec.args="route A C"
+    public static void main(String[] args) throws ServiceException {
+        IGraphService service = ServiceFactory.createNavigatorService();
+        Scanner sc = new Scanner(System.in);
+
+
         boolean ranFromArgs = false;
         if (args != null && args.length >= 1) {
             String cmd = args[0].toLowerCase(Locale.ROOT);
-            try (NavigatorService service = new NavigatorService()) {
-                if ("route".equals(cmd) && args.length >= 3) {
-                    handleRoute(service, args[1], args[2]);
-                    ranFromArgs = true;
-                } else if ("help".equals(cmd)) {
-                    printHelp();
-                    ranFromArgs = true;
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
+            if ("route".equals(cmd) && args.length >= 3) {
+                handleRoute(service, args[1], args[2]);
+                ranFromArgs = true;
+            } else if ("help".equals(cmd)) {
+                printHelp();
+                ranFromArgs = true;
             }
             if (ranFromArgs) return;
         }
 
         System.out.println("Navigator project (CLI + Math). Type 'help'.");
-        try (NavigatorService service = new NavigatorService();
-
-
-
-                Scanner sc = new Scanner(System.in)) {
-
-
-            while (true) {
-                System.out.print("> ");
-                if (!sc.hasNextLine()) { System.out.println(); break; }
-                String line = sc.nextLine().trim();
-                if (line.isEmpty()) {
-                    System.out.println("Tip: type 'help'.");
-                    continue;
-                }
-                String[] parts = line.split("\\s+");
-                String cmd = parts[0].toLowerCase(Locale.ROOT);
-
-                switch (cmd) {
-                    case "help" -> printHelp();
-                    case "exit", "quit", "q" -> { System.out.println("Bye."); return; }
-                    case "route" -> {
-                        if (parts.length < 3) { System.out.println("Usage: route START END"); break; }
-                        handleRoute(service, parts[1], parts[2]);
-                    }
-                    default -> System.out.println("Unknown command. Type 'help'.");
-                }
+        while (true) {
+            System.out.print("> ");
+            if (!sc.hasNextLine()) { System.out.println(); break; }
+            String line = sc.nextLine().trim();
+            if (line.isEmpty()) {
+                System.out.println("Tip: type 'help'.");
+                continue;
             }
-        } catch (RuntimeException rte) {
-            System.err.println("Runtime error: " + rte.getMessage());
-            rte.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
+            String[] parts = line.split("\\s+");
+            String cmd = parts[0].toLowerCase(Locale.ROOT);
+
+            switch (cmd) {
+                case "help" -> printHelp();
+                case "exit", "quit", "q" -> { System.out.println("Bye."); return; }
+                case "route" -> {
+                    if (parts.length < 3) { System.out.println("Usage: route START END"); break; }
+                    handleRoute(service, parts[1], parts[2]);
+                }
+                default -> System.out.println("Unknown command. Type 'help'.");
+            }
         }
     }
 }
