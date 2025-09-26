@@ -11,6 +11,14 @@ public class PathResult {
         this.path = path;
     }
 
+    public double distance() {
+        return distance;
+    }
+
+    public List<String> path() {
+        return path;
+    }
+
     @Override
     public String toString() {
         return "PathResult{distance=" + distance + ", path=" + path + "}";
