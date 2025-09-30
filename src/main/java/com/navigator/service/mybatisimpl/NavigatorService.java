@@ -22,14 +22,10 @@ public class NavigatorService implements IGraphService {
 
     private static final Logger logger = LogManager.getLogger(NavigatorService.class);
     private static final SqlSessionFactory SESSION_FACTORY = MyBatisDaoFactory.getSessionFactory();
-    private final GraphDao graphDao;
-
-
     private Graph graph;
     private FloydWarshall fw;
 
-    public NavigatorService(GraphDao graphDao) {
-        this.graphDao = graphDao;
+    public NavigatorService() {
     }
 
     private void ensureGraphLoaded() throws ServiceException {
