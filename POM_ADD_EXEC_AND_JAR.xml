@@ -1,0 +1,13 @@
+<!-- Add into your pom.xml if not present -->
+<build>
+  <plugins>
+    <plugin>
+      <groupId>org.codehaus.mojo</groupId>
+      <artifactId>exec-maven-plugin</artifactId>
+      <version>3.4.1</version>
+      <configuration>
+        <mainClass>com.navigator.App</mainClass>
+      </configuration>
+    </plugin>
+  </plugins>
+</build>
