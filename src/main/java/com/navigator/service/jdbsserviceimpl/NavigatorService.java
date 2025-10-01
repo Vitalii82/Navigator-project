@@ -1,6 +1,7 @@
 package com.navigator.service.jdbsserviceimpl;
 
 import com.navigator.db.dao.GraphDao;
+import com.navigator.db.dao.GraphDaoImpl;
 import com.navigator.db.exceptions.ServiceException;
 import com.navigator.model.Edge;
 import com.navigator.model.Graph;
@@ -21,9 +22,9 @@ public class NavigatorService implements IGraphService {
     private FloydWarshall fw;
 
 
-    public NavigatorService(GraphDao graphDao) {
-        this.graphDao = graphDao;
-        logger.info("NavigatorService initialized with GraphDao");
+    public NavigatorService() {
+        this.graphDao = new GraphDaoImpl();
+        logger.info("NavigatorService initialized with internal GraphDao");
     }
 
     @Override
@@ -42,6 +43,28 @@ public class NavigatorService implements IGraphService {
             throw new ServiceException("Error reloading graph", e);
         }
     }
+
+    @Override
+    public boolean addNode(String name, double x, double y) {
+        return false;
+    }
+
+
+    @Override
+    public boolean addEdge(String fromName, String toName, double weight) {
+        return false;
+    }
+
+    @Override
+    public boolean removeNode(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean removeEdge(String fromName, String toName) {
+        return false;
+    }
+
 
     @Override
     public List<Node> getAllNodes() throws ServiceException {

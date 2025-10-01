@@ -6,6 +6,9 @@ import com.navigator.service.PathResult;
 import com.navigator.service.intarfaces.IGraphService;
 import com.navigator.service.factory.ServiceFactory;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileReader;
@@ -15,40 +18,42 @@ import java.util.Locale;
 
 public class App {
 
+    private static final Logger logger = LogManager.getLogger(App.class);
+
     private static void printBanner() {
         try {
             File f = new File("NavigatorLogo.txt");
             if (f.exists()) {
                 try (BufferedReader br = new BufferedReader(new FileReader(f))) {
                     String line;
-                    while ((line = br.readLine()) != null) System.out.println(line);
+                    while ((line = br.readLine()) != null) logger.info(line);
                 }
                 return;
             }
         } catch (Exception ignored) {}
-        System.out.println("===== NAVIGATOR PROJECT v1.0 =====");
-        System.out.println("Type 'help' to see available commands. 'exit' to quit.");
-        System.out.println("==================================");
+        logger.info("===== NAVIGATOR PROJECT v1.0 =====");
+        logger.info("Type 'help' to see available commands. 'exit' to quit.");
+        logger.info("==================================");
     }
 
     private static void printHelp() {
-        System.out.println("Commands:");
-        System.out.println("  help");
-        System.out.println("  info");
-        System.out.println("  list-nodes");
-        System.out.println("  list-edges");
-        System.out.println("  add-node <NAME> <X> <Y>");
-        System.out.println("  add-edge <A> <B> <W>");
-        System.out.println("  remove-node <NAME>");
-        System.out.println("  remove-edge <A> <B>");
-        System.out.println("  route <START> <END>");
-        System.out.println("  exit");
+        logger.info("Commands:");
+        logger.info("  help");
+        logger.info("  info");
+        logger.info("  list-nodes");
+        logger.info("  list-edges");
+        logger.info("  add-node <NAME> <X> <Y>");
+        logger.info("  add-edge <A> <B> <W>");
+        logger.info("  remove-node <NAME>");
+        logger.info("  remove-edge <A> <B>");
+        logger.info("  route <START> <END>");
+        logger.info("  exit");
     }
 
     private static void printInfo() {
-        System.out.println("Navigator Project — console pathfinding with SQL storage and Floyd–Warshall.");
-        System.out.println("Authors: Vitalii Svinovei (CLI/Math), Vadym Skryp (DB/Service).");
-        System.out.println("Use 'help' to see commands.");
+        logger.info("Navigator Project — console pathfinding with SQL storage and Floyd–Warshall.");
+        logger.info("Authors: Vitalii Svinovei (CLI/Math), Vadym Skryp (DB/Service).");
+        logger.info("Use 'help' to see commands.");
     }
 
     private static String pathToArrowString(List<String> path) {
@@ -56,23 +61,23 @@ public class App {
     }
 
     private static void printNodes(List<Node> nodes) {
-        System.out.println("+----+-------+---------+---------+");
-        System.out.println("| ID | NAME  |   X     |   Y     |");
-        System.out.println("+----+-------+---------+---------+");
+        logger.info("+----+-------+---------+---------+");
+        logger.info("| ID | NAME  |   X     |   Y     |");
+        logger.info("+----+-------+---------+---------+");
         for (Node n : nodes) {
-            System.out.printf(Locale.US, "| %2d | %-5s | %7.3f | %7.3f |%n", n.id, n.name, n.x, n.y);
+            logger.info(String.format(Locale.US, "| %2d | %-5s | %7.3f | %7.3f |", n.id, n.name, n.x, n.y));
         }
-        System.out.println("+----+-------+---------+---------+");
+        logger.info("+----+-------+---------+---------+");
     }
 
     private static void printEdges(List<Edge> edges) {
-        System.out.println("+---------+---------+---------+");
-        System.out.println("| FROM_ID |  TO_ID  | WEIGHT  |");
-        System.out.println("+---------+---------+---------+");
+        logger.info("+---------+---------+---------+");
+        logger.info("| FROM_ID |  TO_ID  | WEIGHT  |");
+        logger.info("+---------+---------+---------+");
         for (Edge e : edges) {
-            System.out.printf(Locale.US, "| %7d | %7d | %7.3f |%n", e.fromId, e.toId, e.weight);
+            logger.info(String.format(Locale.US, "| %7d | %7d | %7.3f |", e.fromId, e.toId, e.weight));
         }
-        System.out.println("+---------+---------+---------+");
+        logger.info("+---------+---------+---------+");
     }
 
     public static void main(String[] args) throws Exception {
@@ -81,7 +86,7 @@ public class App {
         BufferedReader in = new BufferedReader(new InputStreamReader(System.in));
 
         while (true) {
-            System.out.print("> ");
+            logger.info("> ");
             String line = in.readLine();
             if (line == null) break;
             line = line.trim();
@@ -99,7 +104,7 @@ public class App {
                         printInfo();
                         break;
                     case "exit":
-                        System.out.println("Bye!");
+                        logger.info("Bye!");
                         return;
                     case "list-nodes":
                         printNodes(service.getAllNodes());
@@ -109,7 +114,7 @@ public class App {
                         break;
                     case "add-node":
                         if (parts.length != 4) {
-                            System.out.println("Usage: add-node <NAME> <X> <Y>");
+                            logger.info("Usage: add-node <NAME> <X> <Y>");
                             break;
                         }
                         String name = parts[1];
@@ -118,11 +123,11 @@ public class App {
                         long t0 = System.nanoTime();
                         service.addNode(name, x, y);
                         long dt = System.nanoTime() - t0;
-                        System.out.printf("Node '%s' added (%.2f ms).%n", name, dt/1e6);
+                        logger.info(String.format("Node '%s' added (%.2f ms).", name, dt/1e6));
                         break;
                     case "add-edge":
                         if (parts.length != 4) {
-                            System.out.println("Usage: add-edge <A> <B> <W>");
+                            logger.info("Usage: add-edge <A> <B> <W>");
                             break;
                         }
                         String a = parts[1], b = parts[2];
@@ -130,33 +135,33 @@ public class App {
                         t0 = System.nanoTime();
                         service.addEdge(a, b, w);
                         dt = System.nanoTime() - t0;
-                        System.out.printf("Edge %s -> %s added (%.2f ms).%n", a, b, dt/1e6);
+                        logger.info(String.format("Edge %s -> %s added (%.2f ms).", a, b, dt/1e6));
                         break;
                     case "remove-node":
                         if (parts.length != 2) {
-                            System.out.println("Usage: remove-node <NAME>");
+                            logger.info("Usage: remove-node <NAME>");
                             break;
                         }
                         name = parts[1];
                         t0 = System.nanoTime();
                         service.removeNode(name);
                         dt = System.nanoTime() - t0;
-                        System.out.printf("Node '%s' removed (%.2f ms).%n", name, dt/1e6);
+                        logger.info(String.format("Node '%s' removed (%.2f ms).", name, dt/1e6));
                         break;
                     case "remove-edge":
                         if (parts.length != 3) {
-                            System.out.println("Usage: remove-edge <A> <B>");
+                            logger.info("Usage: remove-edge <A> <B>");
                             break;
                         }
                         a = parts[1]; b = parts[2];
                         t0 = System.nanoTime();
                         service.removeEdge(a, b);
                         dt = System.nanoTime() - t0;
-                        System.out.printf("Edge %s -> %s removed (%.2f ms).%n", a, b, dt/1e6);
+                        logger.info(String.format("Edge %s -> %s removed (%.2f ms).", a, b, dt/1e6));
                         break;
                     case "route":
                         if (parts.length != 3) {
-                            System.out.println("Usage: route <START> <END>");
+                            logger.info("Usage: route <START> <END>");
                             break;
                         }
                         String start = parts[1], end = parts[2];
@@ -164,17 +169,17 @@ public class App {
                         PathResult res = service.shortestPath(start, end);
                         dt = System.nanoTime() - t0;
                         if (res == null || res.path == null || res.path.isEmpty()) {
-                            System.out.println("No path found.");
+                            logger.info("No path found.");
                         } else {
                             String p = pathToArrowString(res.path);
-                            System.out.printf("Path: %s (total: %.3f). Time: %.2f ms%n", p, res.getDistance(), dt/1e6);
+                            logger.info(String.format("Path: %s (total: %.3f). Time: %.2f ms", p, res.getDistance(), dt/1e6));
                         }
                         break;
                     default:
-                        System.out.println("Unknown command. Type 'help'.");
+                        logger.info("Unknown command. Type 'help'.");
                 }
             } catch (Exception ex) {
-                System.out.println("Error: " + ex.getMessage());
+                logger.error("Error: {}", ex.getMessage(), ex);
             }
         }
     }

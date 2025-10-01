@@ -14,4 +14,5 @@ public interface GraphDao {
     Optional<Edge> getEdgeById(int fromId, int toId);
     Optional<Node> getNodeByName(String name);
 
+
 }

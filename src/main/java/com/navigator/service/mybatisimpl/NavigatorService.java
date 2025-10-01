@@ -54,6 +54,27 @@ public class NavigatorService implements IGraphService {
     }
 
     @Override
+    public boolean addNode(String name, double x, double y) {
+        return false;
+    }
+
+    @Override
+    public boolean addEdge(String fromName, String toName, double weight) {
+        return false;
+    }
+
+    @Override
+    public boolean removeNode(String name) {
+        return false;
+    }
+
+    @Override
+    public boolean removeEdge(String fromName, String toName) {
+        return false;
+    }
+
+
+    @Override
     public List<Node> getAllNodes() throws ServiceException {
         ensureGraphLoaded();
         return graph.getNodes();

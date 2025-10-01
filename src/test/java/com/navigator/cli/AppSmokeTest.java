@@ -1,5 +1,6 @@
 package com.navigator.cli;
 
+import com.navigator.App;
 import org.junit.jupiter.api.Test;
 
 import java.io.*;
