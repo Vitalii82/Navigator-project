@@ -21,7 +21,6 @@ public class NavigatorService implements IGraphService {
     private Graph graph;
     private FloydWarshall fw;
 
-
     public NavigatorService() {
         this.graphDao = new GraphDaoImpl();
         logger.info("NavigatorService initialized with internal GraphDao");
@@ -30,14 +29,21 @@ public class NavigatorService implements IGraphService {
     @Override
     public void reloadGraph() throws ServiceException {
         try {
+            logger.info("Reloading graph from database...");
+
             List<Node> nodes = graphDao.getAllNodes();
             List<Edge> edges = graphDao.getAllEdges();
-            this.graph = new Graph(nodes, edges);
 
+            logger.debug("Nodes loaded: {}", nodes);
+            logger.debug("Edges loaded: {}", edges);
+
+            this.graph = new Graph(nodes, edges);
             this.fw = new FloydWarshall(graph);
+
+            logger.info("Computing all-pairs shortest paths with Floyd-Warshall...");
             fw.compute();
 
-            logger.info("Graph reloaded with {} nodes and {} edges", nodes.size(), edges.size());
+            logger.info("Graph reloaded successfully with {} nodes and {} edges", nodes.size(), edges.size());
         } catch (Exception e) {
             logger.error("Failed to reload graph", e);
             throw new ServiceException("Error reloading graph", e);
@@ -48,7 +54,6 @@ public class NavigatorService implements IGraphService {
     public boolean addNode(String name, double x, double y) {
         return false;
     }
-
 
     @Override
     public boolean addEdge(String fromName, String toName, double weight) {
@@ -65,38 +70,53 @@ public class NavigatorService implements IGraphService {
         return false;
     }
 
-
     @Override
     public List<Node> getAllNodes() throws ServiceException {
-        return graphDao.getAllNodes();
+        logger.info("Fetching all nodes from database");
+        List<Node> nodes = graphDao.getAllNodes();
+        logger.debug("Nodes retrieved: {}", nodes);
+        return nodes;
     }
 
     @Override
     public List<Edge> getAllEdges() throws ServiceException {
-        return graphDao.getAllEdges();
+        logger.info("Fetching all edges from database");
+        List<Edge> edges = graphDao.getAllEdges();
+        logger.debug("Edges retrieved: {}", edges);
+        return edges;
     }
 
     @Override
     public PathResult shortestPath(String startName, String endName) throws ServiceException {
         if (graph == null || fw == null) {
+            logger.info("Graph or FloydWarshall not initialized, reloading graph...");
             reloadGraph();
         }
+
+        logger.info("Calculating shortest path from '{}' to '{}'", startName, endName);
 
         Node s = graph.getNodes().stream()
                 .filter(n -> n.name.equalsIgnoreCase(startName))
                 .findFirst()
-                .orElseThrow(() -> new ServiceException("Start node not found: " + startName));
+                .orElseThrow(() -> {
+                    logger.warn("Start node not found: {}", startName);
+                    return new ServiceException("Start node not found: " + startName);
+                });
 
         Node t = graph.getNodes().stream()
                 .filter(n -> n.name.equalsIgnoreCase(endName))
                 .findFirst()
-                .orElseThrow(() -> new ServiceException("End node not found: " + endName));
+                .orElseThrow(() -> {
+                    logger.warn("End node not found: {}", endName);
+                    return new ServiceException("End node not found: " + endName);
+                });
 
         int si = graph.indexOf(s.id);
         int ti = graph.indexOf(t.id);
 
         double dist = fw.getDistanceMatrix()[si][ti];
         if (Double.isInfinite(dist)) {
+            logger.error("No path found between {} -> {}", startName, endName);
             throw new ServiceException("No path found between nodes: " + startName + " -> " + endName);
         }
 
@@ -105,6 +125,8 @@ public class NavigatorService implements IGraphService {
                 .toList();
 
         logger.info("Shortest path {} -> {} found, distance: {}", startName, endName, dist);
+        logger.debug("Path sequence: {}", pathNames);
+
         return new PathResult(dist, pathNames);
     }
 }
